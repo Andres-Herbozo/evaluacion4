@@ -1,0 +1,114 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Run tests
+      run: mvn test
+      
+    - name: Generate reports
+      run: mvn surefire-report:report jacoco:report
+      
+    - name: Upload results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: test-results
+        path: |
+          target/surefire-reports/
+          target/site/jacoco/
+          
+  quality-check:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Run analysis
+      run: mvn clean verify
+        
+    - name: Check coverage
+      run: |
+        COVERAGE=$(grep -o 'Total.*[0-9]*%' target/site/jacoco/index.html | grep -o '[0-9]*%' | sed 's/%//')
+        if [ "$COVERAGE" -lt 80 ]; then
+          echo "Coverage below 80%: $COVERAGE%"
+          exit 1
+        fi
+        echo "Coverage: $COVERAGE%"
+        
+  security-scan:
+    runs-on: ubuntu-latest
+    needs: test
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        
+    - name: Security scan
+      run: mvn dependency:check
+        
+  build:
+    runs-on: ubuntu-latest
+    needs: [test, quality-check, security-scan]
+    
+    steps:
+    - uses: actions/checkout@v3
+      
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        java-version: '11'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Build
+      run: mvn clean package -DskipTests
+      
+    - name: Upload build
+      uses: actions/upload-artifact@v3
+      with:
+        name: application-jar
+        path: target/*.jar
+        
+  notify:
+    runs-on: ubuntu-latest
+    needs: [test, quality-check, security-scan, build]
+    if: always()
+    
+    steps:
+    - name: Notify failure
+      if: failure()
+      run: echo "Pipeline failed"
+        
+    - name: Notify success
+      if: success()
+      run: echo "Pipeline completed successfully" 
