@@ -61,4 +61,9 @@ logs/
 
 # Temporary files
 *.tmp
-*.temp 
+*.temp calculadora-pedidos/
+demo-jmeter/
+selenium-demo/
+soapui-tests/
+jmeter.log
+.vscode/
