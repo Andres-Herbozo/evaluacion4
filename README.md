@@ -1,7 +1,7 @@
 # HealthTrack Test Automation Project
 
 ## Overview
-This project demonstrates automated testing for the HealthTrack platform, including unit, integration, and regression tests.
+This exercise demonstrates automated testing for the HealthTrack platform, including unit, integration and regression tests.
 
 ## Features
 - Unit tests with JUnit 5
