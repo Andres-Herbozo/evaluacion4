@@ -11,10 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '11'
         distribution: 'temurin'
@@ -27,7 +27,7 @@ jobs:
       run: mvn surefire-report:report jacoco:report
       
     - name: Upload results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
@@ -40,10 +40,10 @@ jobs:
     needs: test
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '11'
         distribution: 'temurin'
@@ -65,10 +65,10 @@ jobs:
     needs: test
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '11'
         distribution: 'temurin'
@@ -81,10 +81,10 @@ jobs:
     needs: [test, quality-check, security-scan]
     
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       
     - name: Setup Java
-      uses: actions/setup-java@v3
+      uses: actions/setup-java@v4
       with:
         java-version: '11'
         distribution: 'temurin'
@@ -94,7 +94,7 @@ jobs:
       run: mvn clean package -DskipTests
       
     - name: Upload build
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: application-jar
         path: target/*.jar
